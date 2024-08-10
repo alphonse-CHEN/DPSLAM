@@ -1,6 +1,10 @@
 wandb
-thirdparty/eigen
+thirdparty
 build
 data
 *.zip
 *.egg-info*
+/.idea
+*.pyc
+*.pth
+/our_predictions

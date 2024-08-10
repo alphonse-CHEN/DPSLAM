@@ -1,0 +1,17 @@
+name: msdp
+channels:
+  - pyg
+  - pytorch
+  - nvidia
+  - defaults
+  - conda-forge
+dependencies:
+  - pip
+  - python=3.10
+  - pytorch=2.1
+  - pytorch-cuda=12.1
+  - pytorch-mutex=1.0=cuda
+  - pytorch-scatter=2.1
+  - torchvision
+  - tensordict
+  - nvidia/label/cuda-12.1.0::cuda

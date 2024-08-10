@@ -5,13 +5,21 @@ from pathlib import Path
 import gin
 import numpy as np
 import torch
+# Set Torch Hub Cache to /d_disk/torch_hub
+dp_torch_hub = Path('/d_disk/torch_hub')
+torch.hub.set_dir(dp_torch_hub.resolve().as_posix())
+import os
+os.environ['NUMEXPR_MAX_THREADS'] = '12'
+
 from einops import *
 from tqdm import tqdm
 
 from dataloaders.ETH3D import ETH3D
+from multi_slam.MultiTrajectory import MultiTrajectory
 from multi_slam.fullsystem import FullSystem
 from multi_slam.locnet import LocNet
-from multi_slam.MultiTrajectory import MultiTrajectory
+
+
 
 GROUPS = {
     'plant_scene': ['plant_scene_1', 'plant_scene_2', 'plant_scene_3'],
@@ -21,16 +29,18 @@ GROUPS = {
     'planar': ['planar_2', 'planar_3']
 }
 
+
 @torch.no_grad()
 def main(group_name):
-
     torch.manual_seed(1234)
     np.random.seed(1234)
 
     gt_mt = MultiTrajectory("Ground_Truth")
     pred_mt = MultiTrajectory("Estimated")
-    scenes = [(s, ETH3D(f"data/ETH3D/{s}", stride=2, rev=(i%2 == 1))) for i,s in enumerate(GROUPS[group_name])]
-
+    scenes = [
+        (s, ETH3D(f"data/ETH3D/{s}", stride=2, rev=(i % 2 == 1))) for i, s in enumerate(GROUPS[group_name])]
+    # Only check scenes 1 for now
+    scenes = [scenes[0], scenes[2]]
     for scene_name, scene_obj in scenes:
         for (gt_pose, _, tstamp, _) in scene_obj:
             if gt_pose is not None:
@@ -46,7 +56,7 @@ def main(group_name):
 
     start_time = datetime.now()
     for scene_name, scene_obj in scenes:
-        model.add_new_video(scene_name, len(scene_obj), (448,736))
+        model.add_new_video(scene_name, len(scene_obj), (448, 736))
         for _, intrinsics, tstamp, rgb_path in tqdm(scene_obj):
             intrinsics = torch.as_tensor(intrinsics, dtype=torch.float, device='cuda')
             image = scene_obj.read_image(rgb_path)
@@ -66,13 +76,12 @@ def main(group_name):
     MultiTrajectory.plot_both(pred_mt, gt_mt, save_dir=base_dir)
 
     rmse_tr_err, rot_err, recalls = MultiTrajectory.error(pred_mt, gt_mt)
-    text = f'Err (t): {rmse_tr_err:.03f}m | Err (R): {rot_err:.01f} deg | Recall {recalls} | {end_time-start_time}'
+    text = f'Err (t): {rmse_tr_err:.03f}m | Err (R): {rot_err:.01f} deg | Recall {recalls} | {end_time - start_time}'
     print(text)
     (base_dir / "results.txt").write_text(text)
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument('group', help='group_name', choices=list(GROUPS.keys()))
     args = parser.parse_args()

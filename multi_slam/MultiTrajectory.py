@@ -14,8 +14,9 @@ from evo.core.trajectory import PoseTrajectory3D
 from evo.tools import plot
 from matplotlib import colors
 from scipy.spatial.transform import Rotation as R
-
-matplotlib.use('TKAgg')
+# import matplotlib
+matplotlib.use('Agg')
+# matplotlib.use('TKAgg')
 
 COLORS = np.array([colors.to_rgba(f'C{i}') for i in range(10)])[:,:3]
 
