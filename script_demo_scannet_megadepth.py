@@ -65,7 +65,7 @@ model.load_state_dict(clean_state_dict(torch.load(model_state)))
 # net.compile_modules()
 
 # Setup dataloader
-eval_dataloader = VizDataloader(num_workers=6, shuffle=True, batch_size=1)
+eval_dataloader = VizDataloader(num_workers=1, shuffle=True, batch_size=1)
 
 for batch_index, data_dict in enumerate(tqdm(eval_dataloader, "Creating visualizations")):
 

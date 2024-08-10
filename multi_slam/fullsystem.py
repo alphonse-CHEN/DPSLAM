@@ -125,7 +125,7 @@ class FullSystem:
             backend.update(2)
             del backend
 
-        assert len(self.all_graphs) in [1,2]
+        assert len(self.all_graphs) in [1, 2]
         if (len(self.all_graphs) == 2) and (self.time_since_merge_attempt > 10):
             graph_J, graph_I = self.all_graphs
             RAD = 25 # Only add connections outside the optimization window.

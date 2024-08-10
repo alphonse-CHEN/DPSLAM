@@ -38,9 +38,8 @@ def main(group_name):
     gt_mt = MultiTrajectory("Ground_Truth")
     pred_mt = MultiTrajectory("Estimated")
     scenes = [
-        (s, ETH3D(f"data/ETH3D/{s}", stride=2, rev=(i % 2 == 1))) for i, s in enumerate(GROUPS[group_name])]
-    # Only check scenes 1 for now
-    scenes = [scenes[0], scenes[2]]
+        (s, ETH3D(f"data/ETH3D/{s}", stride=1, rev=(i % 2 == 1))) for i, s in enumerate(GROUPS[group_name])]
+    # scenes = [scenes[1]] => Stride == 1, can make all data happen.
     for scene_name, scene_obj in scenes:
         for (gt_pose, _, tstamp, _) in scene_obj:
             if gt_pose is not None:
