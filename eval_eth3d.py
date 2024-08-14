@@ -5,21 +5,20 @@ from pathlib import Path
 import gin
 import numpy as np
 import torch
+
 # Set Torch Hub Cache to /d_disk/torch_hub
 dp_torch_hub = Path('/d_disk/torch_hub')
 torch.hub.set_dir(dp_torch_hub.resolve().as_posix())
 import os
+
 os.environ['NUMEXPR_MAX_THREADS'] = '12'
 
-from einops import *
 from tqdm import tqdm
 
 from dataloaders.ETH3D import ETH3D
 from multi_slam.MultiTrajectory import MultiTrajectory
 from multi_slam.fullsystem import FullSystem
 from multi_slam.locnet import LocNet
-
-
 
 GROUPS = {
     'plant_scene': ['plant_scene_1', 'plant_scene_2', 'plant_scene_3'],
