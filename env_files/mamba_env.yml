@@ -1,4 +1,4 @@
-name: msdp
+name: dpslam
 channels:
   - pyg
   - pytorch
