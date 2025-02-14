@@ -11,7 +11,7 @@ dp_torch_hub = Path('/d_disk/torch_hub')
 torch.hub.set_dir(dp_torch_hub.resolve().as_posix())
 import os
 
-os.environ['NUMEXPR_MAX_THREADS'] = '12'
+os.environ['NUMEXPR_MAX_THREADS'] = str(os.cpu_count() - 2)
 
 from tqdm import tqdm
 
@@ -37,7 +37,8 @@ def main(group_name):
     gt_mt = MultiTrajectory("Ground_Truth")
     pred_mt = MultiTrajectory("Estimated")
     scenes = [
-        (s, ETH3D(f"/e_disk/SampleData/ETH3D/{s}_mono/{s}", stride=1, rev=(i % 2 == 1))) for i, s in enumerate(GROUPS[group_name])]
+        (s, ETH3D(f"/e_disk/SampleData/ETH3D/{s}_mono/{s}", stride=1, rev=(i % 2 == 1))) for i, s in
+        enumerate(GROUPS[group_name])]
     # scenes = [scenes[1]] => Stride == 1, can make all data happen.
     for scene_name, scene_obj in scenes:
         for (gt_pose, _, tstamp, _) in scene_obj:
