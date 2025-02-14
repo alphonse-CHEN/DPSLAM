@@ -210,7 +210,7 @@ class LocNet(nn.Module):
 
         with autocast(enabled=use_autocast, dtype=torch.bfloat16):
             choices = self.patchify(images.mul(2 / 255).add(-1).flatten(0, 1), disps=disps, bounds=boundsf,
-                                    coords=keypoints.flatten(0, 1))
+                                    coords=keypoints.flatten(0, 1))     # Normalize into [-1, 1]
         imap = rearrange(choices['imap'], '(B LR) M DIM 1 1 -> B LR M DIM', B=B, LR=2, DIM=DIM)
         patches = rearrange(choices['patches'], '(B LR) ... uvd p1 p2 -> B LR ... p1 p2 uvd', B=B, LR=2)
         _, _, hh, ww = choices['fmap']['8'].shape
