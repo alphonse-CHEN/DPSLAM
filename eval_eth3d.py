@@ -11,7 +11,9 @@ dp_torch_hub = Path('/d_disk/torch_hub')
 torch.hub.set_dir(dp_torch_hub.resolve().as_posix())
 import os
 
-os.environ['NUMEXPR_MAX_THREADS'] = '12'
+NUM_CPU = os.cpu_count()
+
+os.environ['NUMEXPR_MAX_THREADS'] = str(NUM_CPU-2)
 
 from tqdm import tqdm
 

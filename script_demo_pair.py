@@ -58,8 +58,8 @@ model.load_state_dict(clean_state_dict(torch.load(model_state)))
 
 # PATH1 = "images/example_left.jpg"
 # PATH2 = "images/example_right.jpg"
-PATH1 = Path(r"/d_disk/Desktop/GX010414-undistort-20-10/query/images/GX010414-undistort.lst_00012.png").resolve().as_posix()
-PATH2 = Path(r"/d_disk/Desktop/GX010414-undistort-20-10/query/images/GX010414-undistort.lst_00021.png").resolve().as_posix()
+PATH1 = Path(r"/d_disk/Desktop/FrontGate/images/frame000079.png").resolve().as_posix()
+PATH2 = Path(r"/d_disk/Desktop/FrontGate/images/frame000235.png").resolve().as_posix()
 
 image1 = torch.as_tensor(np.copy(imread(PATH1))[:, :, :3])
 image2 = torch.as_tensor(np.copy(imread(PATH2))[..., :3])
@@ -67,7 +67,7 @@ images = torch.stack((image1, image2)).permute(0, 3, 1, 2).float().cuda()
 
 assert np.all(image1.shape == image2.shape), "Images must have the same shape"
 
-intrinsics = torch.tensor([320, 320, image1.shape[1]//2, image1.shape[0]//2]).float().cuda().tile(2, 1)
+intrinsics = torch.tensor([320, 320, image1.shape[1] // 2, image1.shape[0] // 2]).float().cuda().tile(2, 1)
 
 predictions = run_model(model, images, intrinsics)
 
