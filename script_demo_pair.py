@@ -1,4 +1,7 @@
 __author__ = 'Xuan-Li CHEN'
+
+import cv2
+
 """
 Xuan-Li Chen
 Domain: Computer Vision, Machine Learning
@@ -12,6 +15,7 @@ import numpy as np
 import torch
 from einops import asnumpy, parse_shape, rearrange
 from imageio.v3 import imread
+from PIL import Image
 
 import multi_slam.solver.epa_ops as epops
 from multi_slam.locnet import LocNet
@@ -35,7 +39,12 @@ def run_model(model, images, intrinsics):
 
 
 def show_img(x):
-    plt.figure(figsize=(10, 10))
+    # Using matplotlib to show the image in original resolution
+    height, width, _ = x.shape
+    dpi = 100  # Dots per inch
+    figsize = width / float(dpi), height / float(dpi)
+
+    plt.figure(figsize=figsize)
     plt.imshow(x)
     plt.axis('off')
     plt.show()
@@ -44,7 +53,7 @@ def show_img(x):
 gconfigs = [next(iter(Path('gconfigs').rglob(g)), None) for g in (["model/fast.gin"])]
 assert all(gconfigs)  # ensure all .gin files were found
 
-gin.parse_config_files_and_bindings(gconfigs, []);
+gin.parse_config_files_and_bindings(gconfigs, [])
 model_state = "twoview.pth"
 
 # Set random seed
@@ -58,8 +67,8 @@ model.load_state_dict(clean_state_dict(torch.load(model_state)))
 
 # PATH1 = "images/example_left.jpg"
 # PATH2 = "images/example_right.jpg"
-PATH1 = Path(r"/d_disk/Desktop/FrontGate/images/frame000079.png").resolve().as_posix()
-PATH2 = Path(r"/d_disk/Desktop/FrontGate/images/frame000235.png").resolve().as_posix()
+PATH1 = Path(r"data/custom/front_0_2469.302803000.jpg").resolve().as_posix()
+PATH2 = Path(r"data/custom/front_0_2470.202780000.jpg").resolve().as_posix()
 
 image1 = torch.as_tensor(np.copy(imread(PATH1))[:, :, :3])
 image2 = torch.as_tensor(np.copy(imread(PATH2))[..., :3])
@@ -67,14 +76,26 @@ images = torch.stack((image1, image2)).permute(0, 3, 1, 2).float().cuda()
 
 assert np.all(image1.shape == image2.shape), "Images must have the same shape"
 
-intrinsics = torch.tensor([320, 320, image1.shape[1] // 2, image1.shape[0] // 2]).float().cuda().tile(2, 1)
+intrinsics = torch.tensor([420, 420, image1.shape[1]//2, image1.shape[0]//2]).float().cuda().tile(2, 1)
 
 predictions = run_model(model, images, intrinsics)
 
 _, _, final_weights, _ = predictions[-1]
-matches_to_show = asnumpy(final_weights.argsort()[-200:])
+matches_to_show = asnumpy(final_weights.argsort()[-100:])
 img1, img2 = rearrange(asnumpy(images.byte()), 'LR RGB H W -> LR H W RGB', LR=2, RGB=3)
 for step, (pts1, pts2, weights, pred_pose) in enumerate(predictions[-1:]):
     img = make_matching_plot(None, img1, img2, asnumpy(pts1), asnumpy(pts2), asnumpy(weights) * 3, matches_to_show,
                              text=[])
     show_img(img)
+    from scipy.spatial.transform import Rotation as R
+
+    # Example 4x4 RT matrix
+    rt_matrix = pred_pose.squeeze().cpu().numpy()
+    # Extract the rotation matrix (upper-left 3x3 part)
+    rotation_matrix = rt_matrix[:3, :3]
+
+    # Convert the rotation matrix to Euler angles (in radians)
+    rotation = R.from_matrix(rotation_matrix)
+    euler_angles = rotation.as_euler('xyz', degrees=True)
+
+    print("Euler angles (in degrees):", euler_angles)
