@@ -1,20 +1,22 @@
-name: msdp
+name: DPSLAMpy311cu126t270
 channels:
-  - pyg
   - pytorch
   - nvidia
-  - defaults
+  - pyg
   - conda-forge
+  - defaults
 dependencies:
   - pip
-  - python=3.10
-  - pytorch=2.1
+  - python=3. 11  # PyTorch 2.7.0 supports Python 3.11+
+  - pytorch=2.7.0
   - pytorch-cuda=12.6
   - pytorch-mutex=1.0=cuda
-  - pytorch-scatter=2.1
   - torchvision
   - tensordict
-  - nvidia/label/cuda-12.6::cuda
+  - nvidia/label/cuda-12.6.0::cuda-toolkit
+  - nvidia/label/cuda-12.6.0::cuda-cudart
+  - nvidia/label/cuda-12.6.0::cuda-nvcc
+  - pyg::pytorch-scatter
   - pip:
       - tqdm
       - wandb

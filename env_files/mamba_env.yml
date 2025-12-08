@@ -14,4 +14,4 @@ dependencies:
   - pytorch-scatter=2.1
   - torchvision
   - tensordict
-  - nvidia/label/cuda-12.1.0::cuda
+  - nvidia/label/cuda-12.6.0::cuda
