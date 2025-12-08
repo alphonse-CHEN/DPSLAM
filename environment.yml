@@ -1,3 +1,13 @@
+# DEPRECATED: This file is kept for backward compatibility.
+# Please use the modular environment setup in env_files/ directory:
+#   - env_files/01_base_env.yml - Base environment with Python 3.11 + GCC 13
+#   - env_files/02_install_pytorch.sh - PyTorch 2.7.0 + CUDA 12.6 installation
+#   - env_files/03_requirements.txt - Python dependencies
+#   - env_files/install_all.sh - Master installation script
+#
+# To install, run: ./env_files/install_all.sh
+#
+# Old configuration (PyTorch 2.1 + CUDA 12.1):
 name: msdp
 channels:
   - pyg

@@ -1,0 +1,17 @@
+tqdm
+wandb
+imageio
+scipy
+fastcore
+albumentations
+imagesize
+h5py
+gin-config
+opencv-python
+einops
+numba
+shapely
+evo
+matplotlib
+chardet
+PyQt5
