@@ -21,11 +21,12 @@ __device__ __forceinline__ void atomicAdd(c10::Half* address, c10::Half val) {
 #else
 // For older architectures (< sm_70), implement atomicAdd for half via atomicCAS
 __device__ __forceinline__ void atomicAdd(c10::Half* address, c10::Half val) {
+  // Align address to 4-byte boundary for atomicCAS (which operates on 32-bit words)
+  // Subtracting (address & 2) ensures we get the start of the 32-bit word containing our half
   unsigned int* address_as_uint = (unsigned int*)((char*)address - ((size_t)address & 2));
   unsigned int old = *address_as_uint;
   unsigned int assumed;
   
-  __half* h_ptr = (__half*)address;
   __half h_val = *reinterpret_cast<__half*>(&val);
   
   do {
