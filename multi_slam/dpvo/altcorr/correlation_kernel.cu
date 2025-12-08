@@ -12,6 +12,40 @@ bool within_bounds(int h, int w, int H, int W) {
   return h >= 0 && h < H && w >= 0 && w < W;
 }
 
+// Custom atomicAdd for c10::Half (PyTorch's half precision type)
+// c10::Half is binary compatible with __half, so we can reinterpret_cast
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ >= 700
+__device__ __forceinline__ void atomicAdd(c10::Half* address, c10::Half val) {
+  atomicAdd(reinterpret_cast<__half*>(address), *reinterpret_cast<__half*>(&val));
+}
+#else
+// For older architectures (< sm_70), implement atomicAdd for half via atomicCAS
+__device__ __forceinline__ void atomicAdd(c10::Half* address, c10::Half val) {
+  unsigned int* address_as_uint = (unsigned int*)((char*)address - ((size_t)address & 2));
+  unsigned int old = *address_as_uint;
+  unsigned int assumed;
+  
+  __half* h_ptr = (__half*)address;
+  __half h_val = *reinterpret_cast<__half*>(&val);
+  
+  do {
+    assumed = old;
+    __half* h_old = (__half*)&old;
+    __half sum;
+    
+    if ((size_t)address & 2) {
+      sum = __hadd(h_old[1], h_val);
+      old = (old & 0x0000ffff) | ((*reinterpret_cast<unsigned short*>(&sum)) << 16);
+    } else {
+      sum = __hadd(h_old[0], h_val);
+      old = (old & 0xffff0000) | (*reinterpret_cast<unsigned short*>(&sum));
+    }
+    
+    old = atomicCAS(address_as_uint, assumed, old);
+  } while (assumed != old);
+}
+#endif
+
 template <typename scalar_t>
 __global__ void patchify_forward_kernel(int R,
     const torch::PackedTensorAccessor32<scalar_t,4,torch::RestrictPtrTraits> net,
