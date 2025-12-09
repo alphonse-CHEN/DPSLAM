@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 # Set Torch Hub Cache to /d_disk/torch_hub
-dp_torch_hub = Path('/d_disk/torch_hub')
+dp_torch_hub = Path('/d_disk/HUBs/torch')
 torch.hub.set_dir(dp_torch_hub.resolve().as_posix())
 import os
 

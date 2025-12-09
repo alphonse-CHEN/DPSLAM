@@ -185,7 +185,8 @@ class LocNet(nn.Module):
 
     def load_weights(self, path: str):
         assert os.path.exists(path)
-        state_dict = torch.load(path)
+        # state_dict = torch.load(path)
+        state_dict = torch.load(path, weights_only=False)
         if "model" in state_dict:
             state_dict = state_dict["model"]
         state_dict = OrderedDict([(k.replace('module.', ''), v) for k, v in state_dict.items()])
